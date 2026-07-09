@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import User from "../models/User";
+import bcrypt from "bcrypt";
+import prisma from "../config/prisma";
 
 const JWT_SECRET =
   process.env.JWT_SECRET ||
@@ -11,7 +12,6 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
-    // Validate input
     if (!username || !password) {
       return res.status(400).json({
         success: false,
@@ -19,8 +19,9 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    // Find user in database
-    const user = await User.findOne({ username }).select("+password");
+    const user = await prisma.user.findUnique({
+      where: { username },
+    });
 
     if (!user) {
       return res.status(401).json({
@@ -29,8 +30,7 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    // Check password
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -39,15 +39,14 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       {
-        userId: user._id,
+        userId: user.id,
         username: user.username,
         role: user.role,
       },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      { expiresIn: JWT_EXPIRES_IN as string } as jwt.SignOptions
     );
 
     res.json({
@@ -55,7 +54,7 @@ export const login = async (req: Request, res: Response) => {
       message: "Login successful!",
       token,
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         role: user.role,
       },
@@ -73,7 +72,6 @@ export const createAdmin = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
-    // Validate input
     if (!username || !password) {
       return res.status(400).json({
         success: false,
@@ -88,8 +86,10 @@ export const createAdmin = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ username });
+    const existingUser = await prisma.user.findUnique({
+      where: { username },
+    });
+
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -97,20 +97,24 @@ export const createAdmin = async (req: Request, res: Response) => {
       });
     }
 
-    // Create new admin user
-    const newUser = new User({
-      username,
-      password,
-      role: "admin",
-    });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    await newUser.save();
+    const newUser = await prisma.user.create({
+      data: {
+        name: username,
+        username,
+        email: `${username}@bps.go.id`,
+        password: hashedPassword,
+        role: "admin",
+      },
+    });
 
     res.status(201).json({
       success: true,
       message: "Admin account created successfully!",
       user: {
-        id: newUser._id,
+        id: newUser.id,
         username: newUser.username,
         role: newUser.role,
       },
@@ -124,7 +128,6 @@ export const createAdmin = async (req: Request, res: Response) => {
   }
 };
 
-// Update verifyToken to provide better error messages
 export const verifyToken = async (req: Request, res: Response) => {
   try {
     const authHeader = req.headers.authorization;
@@ -149,7 +152,9 @@ export const verifyToken = async (req: Request, res: Response) => {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const user = await User.findById(decoded.userId);
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+    });
 
     if (!user) {
       return res.status(401).json({
@@ -162,7 +167,7 @@ export const verifyToken = async (req: Request, res: Response) => {
       success: true,
       message: "Token is valid",
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         role: user.role,
       },
@@ -171,7 +176,7 @@ export const verifyToken = async (req: Request, res: Response) => {
         expiresAt: new Date(decoded.exp * 1000),
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Token verification error:", error);
 
     if (error.name === "TokenExpiredError") {

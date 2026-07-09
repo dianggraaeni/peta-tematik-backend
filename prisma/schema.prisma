@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+}
+
+model Peta {
+  id         String   @id @default(uuid())
+  desa_id    String
+  type       String
+  properties Json
+  geometry   Json
+  createdAt  DateTime @default(now())
+}
+
+model Pekerjaan {
+  id                     String   @id @default(uuid())
+  rt                     Int
+  rw                     Int
+  umur                   Int
+  jenis_kelamin          String
+  status_pekerjaan_utama String
+  bidang_pekerjaan       String
+  nama_anggota           String
+  id_keluarga            String   @default("KEL_BARU")
+  createdAt              DateTime @default(now())
+}

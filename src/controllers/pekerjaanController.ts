@@ -1,78 +1,43 @@
 import type { Request, Response } from "express";
-import mongoose from "mongoose";
-import Pekerjaan from "../models/PekerjaanModel";
-import connectDB from "../config/db";
+import prisma from "../config/prisma";
 
 // READ
 export const getPekerjaanData = async (req: Request, res: Response) => {
   try {
-    console.log("🔄 Starting getPekerjaanData...");
-    await connectDB();
-
-    if (mongoose.connection.readyState !== 1) {
-      console.log("⏳ Waiting for database connection...");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-    if (mongoose.connection.readyState !== 1) {
-      throw new Error("Database not connected after waiting");
-    }
-    console.log("✅ Database connection confirmed");
-
     const { rt, rw } = req.query;
-    const query: any = { "Jenis Kelamin": { $exists: true } };
 
+    const whereClause: any = {};
     if (rt && rw) {
-      query.RT = Number.parseInt(rt as string, 10);
-      query.RW = Number.parseInt(rw as string, 10);
-      console.log(`🔍 Filtering by RT: ${rt}, RW: ${rw}`);
+      whereClause.rt = Number.parseInt(rt as string, 10);
+      whereClause.rw = Number.parseInt(rw as string, 10);
     }
 
-    console.log("📋 Query:", JSON.stringify(query));
-
-    const dataFromDb = (await Promise.race([
-      Pekerjaan.find(query).lean().exec(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Query timeout")), 8000)
-      ),
-    ])) as any[];
-
-    console.log(`📊 Found ${dataFromDb.length} records`);
+    const dataFromDb = await prisma.pekerjaan.findMany({
+      where: whereClause,
+    });
 
     if (dataFromDb.length === 0) {
-      const anyData = await Pekerjaan.findOne().lean().exec();
-      console.log("🔍 Any data exists:", !!anyData);
-
-      return res.json({
-        message: "No data found with current query",
-        query: query,
-        hasAnyData: !!anyData,
-        totalCount: await Pekerjaan.countDocuments(),
-      });
+      return res.json([]);
     }
 
-    // MODIFIED: Added 'bidang_pekerjaan' to the transformation
+    // Map Prisma models to the exact same format expected by the frontend
     const transformedData = dataFromDb.map((item) => ({
-      _id: item._id,
-      rt: String(item.RT),
-      rw: String(item.RW),
-      umur: item.Umur,
-      jenis_kelamin: item["Jenis Kelamin"],
-      status_pekerjaan_utama: item["Status Pekerjaan Utama"],
-      bidang_pekerjaan: item["Bidang Pekerjaan"], // NEW: Map the new field for the frontend
-      nama_anggota: item["Nama Anggota"],
+      _id: item.id,
+      rt: String(item.rt),
+      rw: String(item.rw),
+      umur: item.umur,
+      jenis_kelamin: item.jenis_kelamin,
+      status_pekerjaan_utama: item.status_pekerjaan_utama,
+      bidang_pekerjaan: item.bidang_pekerjaan,
+      nama_anggota: item.nama_anggota,
     }));
 
-    console.log("✅ Data transformed successfully");
     res.json(transformedData);
   } catch (error: any) {
     console.error("❌ Error in getPekerjaanData:", error);
     res.status(500).json({
-      error: "Failed to fetch data from MongoDB",
+      error: "Failed to fetch data from PostgreSQL",
       details: error.message,
-      type: error.name,
-      mongooseState: mongoose.connection.readyState,
-      dbHost: mongoose.connection.host,
-      dbName: mongoose.connection.name,
     });
   }
 };
@@ -80,47 +45,44 @@ export const getPekerjaanData = async (req: Request, res: Response) => {
 // CREATE
 export const createPekerjaanData = async (req: Request, res: Response) => {
   try {
-    await connectDB();
-
-    // MODIFIED: Destructure 'bidang_pekerjaan' from the request body
     const {
       rt,
       rw,
       umur,
       jenis_kelamin,
       status_pekerjaan_utama,
-      bidang_pekerjaan, // NEW
+      bidang_pekerjaan,
       nama_anggota,
     } = req.body;
 
-    // MODIFIED: Added validation for 'bidang_pekerjaan'
     if (
       !rt ||
       !rw ||
       !umur ||
       !jenis_kelamin ||
       !status_pekerjaan_utama ||
-      !bidang_pekerjaan || // NEW
+      !bidang_pekerjaan ||
       !nama_anggota
     ) {
       return res.status(400).json({ message: "All fields must be filled." });
     }
 
-    const newData = new Pekerjaan({
-      RT: Number.parseInt(rt),
-      RW: Number.parseInt(rw),
-      Umur: Number.parseInt(umur),
-      "Jenis Kelamin": jenis_kelamin,
-      "Status Pekerjaan Utama": status_pekerjaan_utama,
-      "Bidang Pekerjaan": bidang_pekerjaan, // NEW: Include in the new document
-      "Nama Anggota": nama_anggota,
-      "ID Keluarga": "KEL_BARU",
+    const newData = await prisma.pekerjaan.create({
+      data: {
+        rt: Number.parseInt(rt),
+        rw: Number.parseInt(rw),
+        umur: Number.parseInt(umur),
+        jenis_kelamin,
+        status_pekerjaan_utama,
+        bidang_pekerjaan,
+        nama_anggota,
+        id_keluarga: "KEL_BARU",
+      },
     });
 
-    const result = await newData.save();
     res.status(201).json({
       message: "Data added successfully",
-      insertedId: result._id,
+      insertedId: newData.id,
     });
   } catch (error: any) {
     console.error("Failed to add data:", error);
@@ -134,36 +96,28 @@ export const createPekerjaanData = async (req: Request, res: Response) => {
 // UPDATE
 export const updatePekerjaanData = async (req: Request, res: Response) => {
   try {
-    await connectDB();
-
     const { id } = req.params;
-    // MODIFIED: Destructure 'bidang_pekerjaan' from the request body
     const {
       rt,
       rw,
       umur,
       jenis_kelamin,
       status_pekerjaan_utama,
-      bidang_pekerjaan, // NEW
+      bidang_pekerjaan,
       nama_anggota,
     } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID." });
-    }
-
-    const updatedData: any = {
-      RT: Number.parseInt(rt),
-      RW: Number.parseInt(rw),
-      Umur: Number.parseInt(umur),
-      "Jenis Kelamin": jenis_kelamin,
-      "Status Pekerjaan Utama": status_pekerjaan_utama,
-      "Bidang Pekerjaan": bidang_pekerjaan, // NEW: Include in the update object
-      "Nama Anggota": nama_anggota,
-    };
-
-    const result = await Pekerjaan.findByIdAndUpdate(id, updatedData, {
-      new: true,
+    const result = await prisma.pekerjaan.update({
+      where: { id },
+      data: {
+        rt: Number.parseInt(rt),
+        rw: Number.parseInt(rw),
+        umur: Number.parseInt(umur),
+        jenis_kelamin,
+        status_pekerjaan_utama,
+        bidang_pekerjaan,
+        nama_anggota,
+      },
     });
 
     if (!result) {
@@ -180,19 +134,11 @@ export const updatePekerjaanData = async (req: Request, res: Response) => {
 // DELETE
 export const deletePekerjaanData = async (req: Request, res: Response) => {
   try {
-    await connectDB();
-
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID." });
-    }
-
-    const result = await Pekerjaan.findByIdAndDelete(id);
-
-    if (!result) {
-      return res.status(404).json({ message: "Data not found." });
-    }
+    await prisma.pekerjaan.delete({
+      where: { id },
+    });
 
     res.json({ message: "Data deleted successfully." });
   } catch (error: any) {
