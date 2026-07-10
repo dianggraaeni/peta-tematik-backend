@@ -3,11 +3,21 @@ import prisma from "../config/prisma";
 
 export const getPetaData = async (req: Request, res: Response) => {
   try {
-    const docs = await prisma.peta.findMany();
+    const { nmdesa } = req.query;
+
+    const whereClause: any = {};
+    if (nmdesa) {
+      whereClause.desa_id = nmdesa as string;
+    }
+
+    const docs = await prisma.peta.findMany({
+      where: whereClause,
+    });
 
     // Grouping by RT, RW, and jenis_kelamin
     const groupedData = await prisma.pekerjaan.groupBy({
       by: ["rt", "rw", "jenis_kelamin"],
+      where: nmdesa ? { nmdesa: nmdesa as string } : undefined,
       _count: {
         _all: true,
       },
