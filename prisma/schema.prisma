@@ -42,5 +42,6 @@ model Pekerjaan {
   bidang_pekerjaan       String
   nama_anggota           String
   id_keluarga            String   @default("KEL_BARU")
+  nmdesa                 String   @default("Sidokepung")
   createdAt              DateTime @default(now())
 }

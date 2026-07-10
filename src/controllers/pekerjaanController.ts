@@ -4,12 +4,15 @@ import prisma from "../config/prisma";
 // READ
 export const getPekerjaanData = async (req: Request, res: Response) => {
   try {
-    const { rt, rw } = req.query;
+    const { rt, rw, nmdesa } = req.query;
 
     const whereClause: any = {};
     if (rt && rw) {
       whereClause.rt = Number.parseInt(rt as string, 10);
       whereClause.rw = Number.parseInt(rw as string, 10);
+    }
+    if (nmdesa) {
+      whereClause.nmdesa = nmdesa as string;
     }
 
     const dataFromDb = await prisma.pekerjaan.findMany({
@@ -30,6 +33,7 @@ export const getPekerjaanData = async (req: Request, res: Response) => {
       status_pekerjaan_utama: item.status_pekerjaan_utama,
       bidang_pekerjaan: item.bidang_pekerjaan,
       nama_anggota: item.nama_anggota,
+      nmdesa: item.nmdesa,
     }));
 
     res.json(transformedData);
@@ -53,6 +57,7 @@ export const createPekerjaanData = async (req: Request, res: Response) => {
       status_pekerjaan_utama,
       bidang_pekerjaan,
       nama_anggota,
+      nmdesa,
     } = req.body;
 
     if (
@@ -62,7 +67,8 @@ export const createPekerjaanData = async (req: Request, res: Response) => {
       !jenis_kelamin ||
       !status_pekerjaan_utama ||
       !bidang_pekerjaan ||
-      !nama_anggota
+      !nama_anggota ||
+      !nmdesa
     ) {
       return res.status(400).json({ message: "All fields must be filled." });
     }
@@ -76,6 +82,7 @@ export const createPekerjaanData = async (req: Request, res: Response) => {
         status_pekerjaan_utama,
         bidang_pekerjaan,
         nama_anggota,
+        nmdesa,
         id_keluarga: "KEL_BARU",
       },
     });
@@ -105,6 +112,7 @@ export const updatePekerjaanData = async (req: Request, res: Response) => {
       status_pekerjaan_utama,
       bidang_pekerjaan,
       nama_anggota,
+      nmdesa,
     } = req.body;
 
     const result = await prisma.pekerjaan.update({
@@ -117,6 +125,7 @@ export const updatePekerjaanData = async (req: Request, res: Response) => {
         status_pekerjaan_utama,
         bidang_pekerjaan,
         nama_anggota,
+        nmdesa,
       },
     });
 
