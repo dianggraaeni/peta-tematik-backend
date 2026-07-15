@@ -71,3 +71,48 @@ model DemografiDesa {
   total_kk       Int
   createdAt      DateTime @default(now())
 }
+
+model Umkm {
+  id                                                     String   @id @default(uuid())
+  kode                                                   String?
+  nama                                                   String?
+  rt                                                     String
+  rw                                                     String
+  dusun                                                  String?
+  jml_ruta                                               Int      @default(0)
+  jml_umkm                                               Int      @default(0)
+  jml_umkm_kbli_a                                        Int      @default(0)
+  jml_umkm_kbli_b                                        Int      @default(0)
+  jml_umkm_kbli_c                                        Int      @default(0)
+  jml_umkm_kbli_d                                        Int      @default(0)
+  jml_umkm_kbli_e                                        Int      @default(0)
+  jml_umkm_kbli_f                                        Int      @default(0)
+  jml_umkm_kbli_g                                        Int      @default(0)
+  jml_umkm_kbli_h                                        Int      @default(0)
+  jml_umkm_kbli_i                                        Int      @default(0)
+  jml_umkm_kbli_j                                        Int      @default(0)
+  jml_umkm_kbli_k                                        Int      @default(0)
+  jml_umkm_kbli_l                                        Int      @default(0)
+  jml_umkm_kbli_m                                        Int      @default(0)
+  jml_umkm_kbli_n                                        Int      @default(0)
+  jml_umkm_kbli_o                                        Int      @default(0)
+  jml_umkm_kbli_p                                        Int      @default(0)
+  jml_umkm_kbli_q                                        Int      @default(0)
+  jml_umkm_kbli_r                                        Int      @default(0)
+  jml_umkm_kbli_s                                        Int      @default(0)
+  jml_umkm_kbli_t                                        Int      @default(0)
+  jml_umkm_kbli_u                                        Int      @default(0)
+  jml_umkm_lokasi_bangunan_khusus_usaha                  Int      @default(0)
+  jml_umkm_lokasi_bangunan_campuran                      Int      @default(0)
+  jml_umkm_lokasi_kaki_lima                              Int      @default(0)
+  jml_umkm_lokasi_keliling                               Int      @default(0)
+  jml_umkm_lokasi_didalam_bangunan_tempat_tinggal_online Int      @default(0)
+  jml_umkm_bentuk_pt_persero_sejenisnya                  Int      @default(0)
+  jml_umkm_bentuk_ijin_desa_ijin_lainnya                 Int      @default(0)
+  jml_umkm_bentuk_tidak_berbadan_hukum                   Int      @default(0)
+  jml_umkm_skala_usaha_mikro                             Int      @default(0)
+  jml_umkm_skala_usaha_kecil                             Int      @default(0)
+  jml_umkm_skala_usaha_menengah                          Int      @default(0)
+  nmdesa                                                 String   @default("Simoanginangin")
+  createdAt                                              DateTime @default(now())
+}
