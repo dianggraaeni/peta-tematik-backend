@@ -45,3 +45,12 @@ model Pekerjaan {
   nmdesa                 String   @default("Sidokepung")
   createdAt              DateTime @default(now())
 }
+
+model VillageTheme {
+  id        String   @id @default(uuid())
+  desa_name String   @unique
+  themes    String[]
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
