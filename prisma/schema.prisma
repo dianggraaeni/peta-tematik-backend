@@ -54,3 +54,20 @@ model VillageTheme {
   createdAt DateTime @default(now())
 }
 
+
+model DemografiDesa {
+  id             String   @id @default(uuid())
+  idkec          String
+  kecamatan      String
+  kode_desa      String
+  iddesa         String   @unique
+  nmdesa         String
+  L              Int
+  P              Int
+  total_penduduk Int
+  rjk            String
+  kk_l           Int
+  kk_p           Int
+  total_kk       Int
+  createdAt      DateTime @default(now())
+}
