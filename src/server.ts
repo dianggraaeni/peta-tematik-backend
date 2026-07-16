@@ -4,6 +4,7 @@ import petaRoutes from "./routes/petaRoutes";
 import pekerjaanRoutes from "./routes/pekerjaanRoutes";
 import authRoutes from "./routes/authRoutes";
 import villageThemeRoutes from "./routes/villageThemeRoutes";
+import aiInsightRoutes from "./routes/aiInsightRoutes";
 import umkmRoutes from "./routes/umkmRoutes";
 
 const app = express();
@@ -18,6 +19,7 @@ app.use("/api/peta", petaRoutes);
 app.use("/api/pekerjaan", pekerjaanRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/village-themes", villageThemeRoutes);
+app.use("/api/insights", aiInsightRoutes);
 app.use("/api/umkm", umkmRoutes);
 
 app.listen(port, () => {
