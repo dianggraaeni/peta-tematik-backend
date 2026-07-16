@@ -8,7 +8,7 @@ export const getVillageThemes = async (req: Request, res: Response) => {
     // Transform into a Record<string, string[]> for easy frontend use
     const themeMap: Record<string, string[]> = {};
     themes.forEach(t => {
-      themeMap[t.desa_name] = t.themes;
+      themeMap[t.desa_name] = Array.isArray(t.themes) ? (t.themes as string[]) : [];
     });
     res.json(themeMap);
   } catch (error) {

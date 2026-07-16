@@ -7,9 +7,17 @@ exports.getPetaData = void 0;
 const prisma_1 = __importDefault(require("../config/prisma"));
 const getPetaData = async (req, res) => {
     try {
-        const docs = await prisma_1.default.peta.findMany();
+        const { nmdesa } = req.query;
+        const whereClause = {};
+        if (nmdesa) {
+            whereClause.desa_id = nmdesa;
+        }
+        const docs = await prisma_1.default.peta.findMany({
+            where: whereClause,
+        });
         const groupedData = await prisma_1.default.pekerjaan.groupBy({
             by: ["rt", "rw", "jenis_kelamin"],
+            where: nmdesa ? { nmdesa: nmdesa } : undefined,
             _count: {
                 _all: true,
             },

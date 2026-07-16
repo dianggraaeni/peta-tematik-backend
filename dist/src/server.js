@@ -8,6 +8,8 @@ const cors_1 = __importDefault(require("cors"));
 const petaRoutes_1 = __importDefault(require("./routes/petaRoutes"));
 const pekerjaanRoutes_1 = __importDefault(require("./routes/pekerjaanRoutes"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
+const villageThemeRoutes_1 = __importDefault(require("./routes/villageThemeRoutes"));
+const umkmRoutes_1 = __importDefault(require("./routes/umkmRoutes"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5003;
 app.use((0, cors_1.default)());
@@ -15,6 +17,8 @@ app.use(express_1.default.json());
 app.use("/api/peta", petaRoutes_1.default);
 app.use("/api/pekerjaan", pekerjaanRoutes_1.default);
 app.use("/api/auth", authRoutes_1.default);
+app.use("/api/village-themes", villageThemeRoutes_1.default);
+app.use("/api/umkm", umkmRoutes_1.default);
 app.listen(port, () => {
     console.log(`Backend server running at http://localhost:${port}`);
 });

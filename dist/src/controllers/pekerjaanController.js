@@ -7,11 +7,14 @@ exports.deletePekerjaanData = exports.updatePekerjaanData = exports.createPekerj
 const prisma_1 = __importDefault(require("../config/prisma"));
 const getPekerjaanData = async (req, res) => {
     try {
-        const { rt, rw } = req.query;
+        const { rt, rw, nmdesa } = req.query;
         const whereClause = {};
         if (rt && rw) {
             whereClause.rt = Number.parseInt(rt, 10);
             whereClause.rw = Number.parseInt(rw, 10);
+        }
+        if (nmdesa) {
+            whereClause.nmdesa = nmdesa;
         }
         const dataFromDb = await prisma_1.default.pekerjaan.findMany({
             where: whereClause,
@@ -28,6 +31,7 @@ const getPekerjaanData = async (req, res) => {
             status_pekerjaan_utama: item.status_pekerjaan_utama,
             bidang_pekerjaan: item.bidang_pekerjaan,
             nama_anggota: item.nama_anggota,
+            nmdesa: item.nmdesa,
         }));
         res.json(transformedData);
     }
@@ -42,14 +46,15 @@ const getPekerjaanData = async (req, res) => {
 exports.getPekerjaanData = getPekerjaanData;
 const createPekerjaanData = async (req, res) => {
     try {
-        const { rt, rw, umur, jenis_kelamin, status_pekerjaan_utama, bidang_pekerjaan, nama_anggota, } = req.body;
+        const { rt, rw, umur, jenis_kelamin, status_pekerjaan_utama, bidang_pekerjaan, nama_anggota, nmdesa, } = req.body;
         if (!rt ||
             !rw ||
             !umur ||
             !jenis_kelamin ||
             !status_pekerjaan_utama ||
             !bidang_pekerjaan ||
-            !nama_anggota) {
+            !nama_anggota ||
+            !nmdesa) {
             return res.status(400).json({ message: "All fields must be filled." });
         }
         const newData = await prisma_1.default.pekerjaan.create({
@@ -61,6 +66,7 @@ const createPekerjaanData = async (req, res) => {
                 status_pekerjaan_utama,
                 bidang_pekerjaan,
                 nama_anggota,
+                nmdesa,
                 id_keluarga: "KEL_BARU",
             },
         });
@@ -81,7 +87,7 @@ exports.createPekerjaanData = createPekerjaanData;
 const updatePekerjaanData = async (req, res) => {
     try {
         const { id } = req.params;
-        const { rt, rw, umur, jenis_kelamin, status_pekerjaan_utama, bidang_pekerjaan, nama_anggota, } = req.body;
+        const { rt, rw, umur, jenis_kelamin, status_pekerjaan_utama, bidang_pekerjaan, nama_anggota, nmdesa, } = req.body;
         const result = await prisma_1.default.pekerjaan.update({
             where: { id },
             data: {
@@ -92,6 +98,7 @@ const updatePekerjaanData = async (req, res) => {
                 status_pekerjaan_utama,
                 bidang_pekerjaan,
                 nama_anggota,
+                nmdesa,
             },
         });
         if (!result) {

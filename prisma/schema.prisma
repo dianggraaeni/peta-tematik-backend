@@ -8,9 +8,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -49,7 +48,7 @@ model Pekerjaan {
 model VillageTheme {
   id        String   @id @default(uuid())
   desa_name String   @unique
-  themes    String[]
+  themes    Json
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
