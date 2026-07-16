@@ -22,19 +22,19 @@ export const getInsight = async (req: Request, res: Response) => {
       - Total Penduduk Bekerja/Usia Kerja: ${data.totalPenduduk || 0}
       - Pekerjaan Dominan: ${data.dominanPekerjaan || "Tidak diketahui"}
       - Rasio Jenis Kelamin (L/P): ${data.lakiLaki || 0}/${data.perempuan || 0}
-      Fokus pada potensi atau profil wilayah ini secara analitis.`;
+      Fokus pada potensi atau profil wilayah ini secara analitis. Di akhir insight, selalu sertakan perkiraan tahun (misal: 2023/2024) dan sumber rujukan umum (misal: BPS Sidoarjo/Data Desa).`;
     } else if (contextType === "umkm") {
        prompt = `Sebagai analis data BPS yang profesional, berikan insight singkat (1-3 kalimat) mengenai potensi UMKM dan ekonomi di wilayah ${featureName}, Kabupaten Sidoarjo. Gunakan pengetahuan bawaanmu tentang karakteristik riil dan sejarah wilayah tersebut di dunia nyata (seolah-olah kamu mencari profil ekonominya di internet), lalu gabungkan dengan data statistik ini:
       - Total UMKM: ${data.totalUmkm || 0}
       - KBLI (Sektor) Dominan: ${data.dominanKbli || "Tidak diketahui"}
-      Fokus pada kesimpulan utama atau potensi ekonomi wilayah ini secara spesifik.`;
+      Fokus pada kesimpulan utama atau potensi ekonomi wilayah ini secara spesifik. Di akhir insight, selalu sertakan perkiraan tahun (misal: 2023/2024) dan sumber rujukan umum (misal: BPS Sidoarjo/Data Desa).`;
     } else if (contextType === "statistik_kecamatan") {
        prompt = `Sebagai analis data BPS yang profesional, berikan insight analitis singkat (1-3 kalimat) mengenai karakteristik atau potensi kecamatan/desa ${featureName} di Kabupaten Sidoarjo. Gunakan pengetahuan luasmu tentang profil sosial, budaya, letak geografis, atau ikon wilayah tersebut di internet, dikombinasikan dengan data kependudukan berikut:
       - Total Penduduk: ${data.jumlah_penduduk || data.total_penduduk || 0} jiwa
       - Total Rumah Tangga/KK: ${data.jumlah_rumah_tangga || data.total_kk || 0}
-      Fokus pada potensi unik atau tantangan di kecamatan/desa ini secara nyata.`;
+      Fokus pada potensi unik atau tantangan di kecamatan/desa ini secara nyata. Di akhir insight, selalu sertakan perkiraan tahun (misal: 2023/2024) dan sumber rujukan umum (misal: BPS Sidoarjo/Data Desa).`;
     } else {
-      prompt = `Berikan insight singkat (1-2 kalimat) untuk wilayah ${featureName} berdasarkan data berikut: ${JSON.stringify(data)}`;
+      prompt = `Berikan insight singkat (1-2 kalimat) untuk wilayah ${featureName} berdasarkan data berikut: ${JSON.stringify(data)}. Di akhir insight, cantumkan sumber data (BPS Sidoarjo) dan tahun data.`;
     }
 
     try {
