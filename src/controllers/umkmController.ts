@@ -8,7 +8,7 @@ export const getUmkmData = async (req: Request, res: Response) => {
     const { nmdesa, rt, rw } = req.query;
 
     const query: any = {};
-    if (nmdesa) query.nmdesa = { equals: String(nmdesa), mode: "insensitive" };
+    if (nmdesa) query.nmdesa = { equals: String(nmdesa) };
     if (rt) query.rt = String(rt);
     if (rw) query.rw = String(rw);
 
