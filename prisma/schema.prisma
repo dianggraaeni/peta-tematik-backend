@@ -115,3 +115,14 @@ model Umkm {
   nmdesa                                                 String   @default("Simoanginangin")
   createdAt                                              DateTime @default(now())
 }
+
+model ManualInsight {
+  id          String   @id @default(uuid())
+  desa_name   String
+  contextType String   // "demografi", "umkm", "pekerjaan"
+  insightText String   @db.Text
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@unique([desa_name, contextType])
+}
