@@ -1,80 +1,66 @@
 import { Request, Response } from "express";
-import fs from "fs";
-import path from "path";
+import prisma from "../config/prisma";
 
-const dataFilePath = path.join(__dirname, "../data/manualInsights.json");
-
-// Helper to read data
-const readData = () => {
-  try {
-    const data = fs.readFileSync(dataFilePath, "utf8");
-    return JSON.parse(data);
-  } catch (err) {
-    console.error("Error reading manualInsights.json:", err);
-    return [];
-  }
-};
-
-// Helper to write data
-const writeData = (data: any) => {
-  try {
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error writing manualInsights.json:", err);
-  }
-};
-
-export const getManualInsight = (req: Request, res: Response) => {
+export const getManualInsight = async (req: Request, res: Response) => {
   const { desa_name, contextType } = req.query;
 
   if (!desa_name || !contextType) {
     return res.status(400).json({ error: "desa_name and contextType are required" });
   }
 
-  const data = readData();
-  const insight = data.find(
-    (item: any) =>
-      item.desa_name.toLowerCase() === (desa_name as String).toLowerCase() &&
-      item.contextType.toLowerCase() === (contextType as String).toLowerCase()
-  );
-
-  if (insight) {
-    return res.json(insight);
-  } else {
-    // If not found, return empty or default
-    return res.json({
-      desa_name,
-      contextType,
-      insightText: `Belum ada insight manual untuk ${desa_name} pada tema ${contextType}.`
+  try {
+    const insight = await prisma.manualInsight.findUnique({
+      where: {
+        desa_name_contextType: {
+          desa_name: String(desa_name),
+          contextType: String(contextType)
+        }
+      }
     });
+
+    if (insight) {
+      return res.json(insight);
+    } else {
+      return res.json({
+        desa_name,
+        contextType,
+        insightText: `Belum ada insight manual untuk ${desa_name} pada tema ${contextType}.`
+      });
+    }
+  } catch (err) {
+    console.error("Error fetching manual insight:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const updateManualInsight = (req: Request, res: Response) => {
+export const updateManualInsight = async (req: Request, res: Response) => {
   const { desa_name, contextType, insightText } = req.body;
 
   if (!desa_name || !contextType || insightText === undefined) {
     return res.status(400).json({ error: "desa_name, contextType, and insightText are required" });
   }
 
-  const data = readData();
-  const index = data.findIndex(
-    (item: any) =>
-      item.desa_name.toLowerCase() === desa_name.toLowerCase() &&
-      item.contextType.toLowerCase() === contextType.toLowerCase()
-  );
-
-  if (index >= 0) {
-    data[index].insightText = insightText;
-  } else {
-    data.push({
-      id: Date.now().toString(),
-      desa_name,
-      contextType,
-      insightText
+  try {
+    const updated = await prisma.manualInsight.upsert({
+      where: {
+        desa_name_contextType: {
+          desa_name: String(desa_name),
+          contextType: String(contextType)
+        }
+      },
+      update: {
+        insightText: String(insightText)
+      },
+      create: {
+        desa_name: String(desa_name),
+        contextType: String(contextType),
+        insightText: String(insightText)
+      }
     });
-  }
 
-  writeData(data);
-  return res.json({ message: "Insight berhasil disimpan!" });
+    return res.json({ message: "Insight berhasil disimpan!", data: updated });
+  } catch (err) {
+    console.error("Error updating manual insight:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
