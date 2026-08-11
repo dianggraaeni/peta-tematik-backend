@@ -12,6 +12,8 @@ const villageThemeRoutes_1 = __importDefault(require("./routes/villageThemeRoute
 const aiInsightRoutes_1 = __importDefault(require("./routes/aiInsightRoutes"));
 const umkmRoutes_1 = __importDefault(require("./routes/umkmRoutes"));
 const manualInsightRoutes_1 = __importDefault(require("./routes/manualInsightRoutes"));
+const villageDataRoutes_1 = __importDefault(require("./routes/villageDataRoutes"));
+const villageRoutes_1 = __importDefault(require("./routes/villageRoutes"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5003;
 app.use((0, cors_1.default)());
@@ -23,6 +25,8 @@ app.use("/api/village-themes", villageThemeRoutes_1.default);
 app.use("/api/insights", aiInsightRoutes_1.default);
 app.use("/api/umkm", umkmRoutes_1.default);
 app.use("/api/manual-insights", manualInsightRoutes_1.default);
+app.use("/api/village-data", villageDataRoutes_1.default);
+app.use("/api/villages", villageRoutes_1.default);
 app.listen(port, () => {
     console.log(`Backend server running at http://localhost:${port}`);
 });
