@@ -10,6 +10,7 @@ import manualInsightRoutes from "./routes/manualInsightRoutes";
 import villageDataRoutes from "./routes/villageDataRoutes";
 import villageRoutes from "./routes/villageRoutes";
 import pertanianRoutes from "./routes/pertanianRoutes";
+import uploadDataRoutes from "./routes/uploadDataRoutes";
 
 const app = express();
 const port = process.env.PORT || 5003;
@@ -29,6 +30,7 @@ app.use("/api/manual-insights", manualInsightRoutes);
 app.use("/api/village-data", villageDataRoutes);
 app.use("/api/villages", villageRoutes);
 app.use("/api/pertanian", pertanianRoutes);
+app.use("/api/upload-data", uploadDataRoutes);
 
 app.listen(port, () => {
   console.log(`Backend server running at http://localhost:${port}`);

@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const uploadDataController_1 = require("../controllers/uploadDataController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+router.use(auth_1.authenticateToken);
+router.get("/penduduk", uploadDataController_1.getPendudukData);
+router.put("/penduduk", uploadDataController_1.savePendudukManual);
+router.post("/penduduk-file", uploadDataController_1.upload.single("file"), uploadDataController_1.uploadPendudukFile);
+router.post("/geojson-tematik", uploadDataController_1.upload.single("file"), uploadDataController_1.uploadGeojsonTematik);
+router.get("/download/:filename", uploadDataController_1.downloadFile);
+router.get("/backups", uploadDataController_1.listBackups);
+exports.default = router;

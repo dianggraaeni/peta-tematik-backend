@@ -14,6 +14,8 @@ const umkmRoutes_1 = __importDefault(require("./routes/umkmRoutes"));
 const manualInsightRoutes_1 = __importDefault(require("./routes/manualInsightRoutes"));
 const villageDataRoutes_1 = __importDefault(require("./routes/villageDataRoutes"));
 const villageRoutes_1 = __importDefault(require("./routes/villageRoutes"));
+const pertanianRoutes_1 = __importDefault(require("./routes/pertanianRoutes"));
+const uploadDataRoutes_1 = __importDefault(require("./routes/uploadDataRoutes"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5003;
 app.use((0, cors_1.default)());
@@ -27,6 +29,8 @@ app.use("/api/umkm", umkmRoutes_1.default);
 app.use("/api/manual-insights", manualInsightRoutes_1.default);
 app.use("/api/village-data", villageDataRoutes_1.default);
 app.use("/api/villages", villageRoutes_1.default);
+app.use("/api/pertanian", pertanianRoutes_1.default);
+app.use("/api/upload-data", uploadDataRoutes_1.default);
 app.listen(port, () => {
     console.log(`Backend server running at http://localhost:${port}`);
 });
