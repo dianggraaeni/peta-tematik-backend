@@ -5,6 +5,7 @@ import fs from "fs";
 
 // Path ke folder public/data di frontend
 const FRONTEND_DATA_DIR = path.resolve(process.cwd(), "../peta-tematik-frontend/public/data");
+const GEOJSON_DIR = path.resolve(process.cwd(), "../peta-tematik-frontend/public/geoJson");
 
 // Backup dir di dalam backend/data/backups
 const BACKUP_DIR = path.resolve(process.cwd(), "data/backups");
@@ -212,5 +213,75 @@ export const listBackups = async (req: Request, res: Response) => {
     res.json({ success: true, backups: files });
   } catch (err) {
     res.status(500).json({ success: false, message: "Gagal membaca backup" });
+  }
+};
+
+// POST /api/upload-data/geojson-desa/:desaName
+export const uploadGeojsonDesa = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "File tidak ditemukan" });
+    }
+    const { desaName } = req.params;
+    if (!desaName) return res.status(400).json({ success: false, message: "Nama desa tidak valid" });
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(req.file.buffer.toString("utf8"));
+    } catch {
+      return res.status(400).json({ success: false, message: "File bukan JSON/GeoJSON yang valid" });
+    }
+
+    if (parsed.type !== "FeatureCollection" && !parsed.features) {
+      return res.status(400).json({
+        success: false,
+        message: "File harus berformat GeoJSON",
+      });
+    }
+
+    const filename = `${desaName.toLowerCase()}.geojson`;
+    const srcPath = path.join(GEOJSON_DIR, filename);
+    
+    // Backup
+    let backupName = null;
+    if (fs.existsSync(srcPath)) {
+      const ts = new Date().toISOString().replace(/[:.]/g, "-");
+      backupName = `${filename}.${ts}.bak`;
+      const destPath = path.join(BACKUP_DIR, backupName);
+      fs.copyFileSync(srcPath, destPath);
+    }
+
+    fs.writeFileSync(srcPath, JSON.stringify(parsed, null, 2), "utf8");
+
+    res.json({
+      success: true,
+      message: `File ${filename} berhasil diupload dan disimpan`,
+      backup: backupName
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Gagal mengupload file geojson" });
+  }
+};
+
+// DELETE /api/upload-data/geojson-desa/:desaName
+export const deleteGeojsonDesa = async (req: Request, res: Response) => {
+  try {
+    const { desaName } = req.params;
+    if (!desaName) return res.status(400).json({ success: false, message: "Nama desa tidak valid" });
+
+    const filename = `${desaName.toLowerCase()}.geojson`;
+    const filePath = path.join(GEOJSON_DIR, filename);
+
+    if (fs.existsSync(filePath)) {
+      const ts = new Date().toISOString().replace(/[:.]/g, "-");
+      const backupName = `${filename}.${ts}.bak`;
+      fs.copyFileSync(filePath, path.join(BACKUP_DIR, backupName));
+      fs.unlinkSync(filePath);
+    }
+    res.json({ success: true, message: "Batas wilayah berhasil dihapus" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Gagal menghapus batas wilayah" });
   }
 };

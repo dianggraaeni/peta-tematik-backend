@@ -5,6 +5,8 @@ import {
   savePendudukManual,
   uploadPendudukFile,
   uploadGeojsonTematik,
+  uploadGeojsonDesa,
+  deleteGeojsonDesa,
   downloadFile,
   listBackups,
   deleteActiveFile,
@@ -27,6 +29,12 @@ router.post("/penduduk-file", upload.single("file"), uploadPendudukFile);
 
 // POST upload file peta_sidoarjo.geojson baru
 router.post("/geojson-tematik", upload.single("file"), uploadGeojsonTematik);
+
+// POST upload file namadesa.geojson baru
+router.post("/geojson-desa/:desaName", upload.single("file"), uploadGeojsonDesa);
+
+// DELETE hapus file namadesa.geojson aktif
+router.delete("/geojson-desa/:desaName", deleteGeojsonDesa);
 
 // GET download file template
 router.get("/download/:filename", downloadFile);

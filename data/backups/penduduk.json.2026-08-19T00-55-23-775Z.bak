@@ -1,0 +1,32 @@
+{
+  "3515010001": {
+    "Kecamatan": "TARIK",
+    "nmdesa": "KRAMATTEMENGGUNG",
+    "L": 120,
+    "P": 130,
+    "total_penduduk": 250,
+    "KK_L": 40,
+    "KK_P": 10,
+    "total_kk": 50
+  },
+  "3515010002": {
+    "Kecamatan": "TARIK",
+    "nmdesa": "KALIMATI",
+    "L": 200,
+    "P": 210,
+    "total_penduduk": 410,
+    "KK_L": 60,
+    "KK_P": 15,
+    "total_kk": 75
+  },
+  "3515010003": {
+    "Kecamatan": "TARIK",
+    "nmdesa": "SEBANI",
+    "L": 300,
+    "P": 310,
+    "total_penduduk": 610,
+    "KK_L": 80,
+    "KK_P": 20,
+    "total_kk": 100
+  }
+}

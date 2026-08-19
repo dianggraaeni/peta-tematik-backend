@@ -49,6 +49,36 @@ export const getPekerjaanData = async (req: Request, res: Response) => {
 // CREATE
 export const createPekerjaanData = async (req: Request, res: Response) => {
   try {
+    if (Array.isArray(req.body)) {
+      const dataToInsert = req.body.map((item: any) => ({
+        rt: Number.parseInt(item.rt) || 0,
+        rw: Number.parseInt(item.rw) || 0,
+        umur: Number.parseInt(item.umur) || 0,
+        jenis_kelamin: item.jenis_kelamin || "",
+        status_pekerjaan_utama: item.status_pekerjaan_utama || "",
+        bidang_pekerjaan: item.bidang_pekerjaan || "",
+        nama_anggota: item.nama_anggota || "Warga",
+        nmdesa: item.nmdesa || "",
+        id_keluarga: item.id_keluarga || "KEL_BARU",
+      })).filter((item: any) => item.nmdesa !== "");
+
+      if (dataToInsert.length > 0) {
+        // Hapus data lama untuk desa ini agar tidak duplikat
+        await prisma.pekerjaan.deleteMany({
+          where: { nmdesa: dataToInsert[0].nmdesa }
+        });
+
+        const newData = await prisma.pekerjaan.createMany({
+          data: dataToInsert,
+          skipDuplicates: true
+        });
+        return res.status(201).json({ message: "Bulk data added successfully", count: newData.count });
+      } else {
+        return res.status(400).json({ message: "Array is empty or missing nmdesa." });
+      }
+    }
+
+    // Fallback for single insert
     const {
       rt,
       rw,
