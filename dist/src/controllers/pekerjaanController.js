@@ -46,6 +46,32 @@ const getPekerjaanData = async (req, res) => {
 exports.getPekerjaanData = getPekerjaanData;
 const createPekerjaanData = async (req, res) => {
     try {
+        if (Array.isArray(req.body)) {
+            const dataToInsert = req.body.map((item) => ({
+                rt: Number.parseInt(item.rt) || 0,
+                rw: Number.parseInt(item.rw) || 0,
+                umur: Number.parseInt(item.umur) || 0,
+                jenis_kelamin: item.jenis_kelamin || "",
+                status_pekerjaan_utama: item.status_pekerjaan_utama || "",
+                bidang_pekerjaan: item.bidang_pekerjaan || "",
+                nama_anggota: item.nama_anggota || "Warga",
+                nmdesa: item.nmdesa || "",
+                id_keluarga: item.id_keluarga || "KEL_BARU",
+            })).filter((item) => item.nmdesa !== "");
+            if (dataToInsert.length > 0) {
+                await prisma_1.default.pekerjaan.deleteMany({
+                    where: { nmdesa: dataToInsert[0].nmdesa }
+                });
+                const newData = await prisma_1.default.pekerjaan.createMany({
+                    data: dataToInsert,
+                    skipDuplicates: true
+                });
+                return res.status(201).json({ message: "Bulk data added successfully", count: newData.count });
+            }
+            else {
+                return res.status(400).json({ message: "Array is empty or missing nmdesa." });
+            }
+        }
         const { rt, rw, umur, jenis_kelamin, status_pekerjaan_utama, bidang_pekerjaan, nama_anggota, nmdesa, } = req.body;
         if (!rt ||
             !rw ||

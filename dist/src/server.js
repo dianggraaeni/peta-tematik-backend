@@ -19,7 +19,8 @@ const uploadDataRoutes_1 = __importDefault(require("./routes/uploadDataRoutes"))
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5003;
 app.use((0, cors_1.default)());
-app.use(express_1.default.json());
+app.use(express_1.default.json({ limit: "50mb" }));
+app.use(express_1.default.urlencoded({ limit: "50mb", extended: true }));
 app.use("/api/peta", petaRoutes_1.default);
 app.use("/api/pekerjaan", pekerjaanRoutes_1.default);
 app.use("/api/auth", authRoutes_1.default);

@@ -9,4 +9,5 @@ const router = express_1.default.Router();
 router.post("/", villageDataController_1.uploadVillageData);
 router.get("/:desa_name", villageDataController_1.getVillageData);
 router.get("/:desa_name/:dataType", villageDataController_1.getVillageData);
+router.delete("/:desa_name/:dataType", villageDataController_1.deleteVillageData);
 exports.default = router;

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getVillageData = exports.uploadVillageData = void 0;
+exports.deleteVillageData = exports.getVillageData = exports.uploadVillageData = void 0;
 const prisma_1 = __importDefault(require("../config/prisma"));
 const uploadVillageData = async (req, res) => {
     try {
@@ -74,3 +74,40 @@ const getVillageData = async (req, res) => {
     }
 };
 exports.getVillageData = getVillageData;
+const deleteVillageData = async (req, res) => {
+    try {
+        const { desa_name, dataType } = req.params;
+        if (!desa_name || !dataType) {
+            return res.status(400).json({ error: "Parameter desa_name dan dataType wajib diisi" });
+        }
+        const formattedDesa = desa_name.toLowerCase().trim();
+        try {
+            await prisma_1.default.villageDataJSON.delete({
+                where: {
+                    desa_name_dataType: {
+                        desa_name: formattedDesa,
+                        dataType: dataType
+                    }
+                }
+            });
+        }
+        catch (e) {
+        }
+        if (dataType === 'pekerjaan') {
+            await prisma_1.default.pekerjaan.deleteMany({
+                where: { nmdesa: desa_name.toUpperCase() }
+            });
+        }
+        else if (dataType === 'umkm') {
+            await prisma_1.default.umkm.deleteMany({
+                where: { nmdesa: desa_name.charAt(0).toUpperCase() + desa_name.slice(1).toLowerCase() }
+            });
+        }
+        return res.status(200).json({ success: true, message: `Data ${dataType} untuk ${formattedDesa} berhasil dihapus.` });
+    }
+    catch (error) {
+        console.error("Error deleting village data:", error);
+        return res.status(500).json({ error: "Gagal menghapus data" });
+    }
+};
+exports.deleteVillageData = deleteVillageData;

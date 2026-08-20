@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const bcrypt = require('bcryptjs'); const prisma = new PrismaClient(); async function main() { const hashed = await bcrypt.hash('admin123', 10); await prisma.user.updateMany({ data: { password: hashed } }); console.log('All passwords reset to admin123'); } main().finally(() => prisma.$disconnect());

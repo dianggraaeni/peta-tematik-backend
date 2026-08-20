@@ -4,4 +4,5 @@ const express_1 = require("express");
 const umkmController_1 = require("../controllers/umkmController");
 const router = (0, express_1.Router)();
 router.get("/", umkmController_1.getUmkmData);
+router.post("/", umkmController_1.uploadUmkmData);
 exports.default = router;
